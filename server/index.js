@@ -59,7 +59,13 @@ app.use(express.static(path.join(__dirname, '../dist')));
 
 // Serve index.html for any other route (React router compatibility)
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
+    const indexPath = path.join(__dirname, '../dist/index.html');
+    res.sendFile(indexPath, (err) => {
+        if (err) {
+            console.error('Error serving index.html:', err);
+            res.status(500).send(`Error loading frontend: index.html not found. Path: ${indexPath}`);
+        }
+    });
 });
 
 // ── Iniciar ────────────────────────────────────────────────────────
