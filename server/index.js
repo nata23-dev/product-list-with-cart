@@ -43,12 +43,40 @@ app.use('/api/orders', orderRoutes);
 // Documentación interactiva disponible en http://localhost:3000/api-docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+import fs from 'fs';
+
 // ── Health check ───────────────────────────────────────────────────
 app.get('/api', (req, res) => {
     res.json({
         message: '🍰 Desserts API funcionando',
         docs: '/api-docs',
     });
+});
+
+// ── Debug Files ────────────────────────────────────────────────────
+app.get('/api/debug-files', (req, res) => {
+    try {
+        const rootDir = path.join(__dirname, '..');
+        const distDir = path.join(__dirname, '../dist');
+        const distAssetsDir = path.join(__dirname, '../dist/assets');
+        
+        const rootFiles = fs.existsSync(rootDir) ? fs.readdirSync(rootDir) : [];
+        const distFiles = fs.existsSync(distDir) ? fs.readdirSync(distDir) : [];
+        const distAssetsFiles = fs.existsSync(distAssetsDir) ? fs.readdirSync(distAssetsDir) : [];
+        
+        res.json({
+            cwd: process.cwd(),
+            __dirname,
+            rootDir,
+            distDir,
+            rootFiles,
+            distFiles,
+            distAssetsFiles,
+            env: process.env.NODE_ENV
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 const __filename = fileURLToPath(import.meta.url);
