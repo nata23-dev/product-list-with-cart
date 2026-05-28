@@ -44,10 +44,10 @@ app.use('/api/orders', orderRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ── Health check ───────────────────────────────────────────────────
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
     res.json({
         message: '🍰 Desserts API funcionando',
-        docs: 'http://localhost:3000/api-docs',
+        docs: '/api-docs',
     });
 });
 
