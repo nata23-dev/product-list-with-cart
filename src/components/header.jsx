@@ -7,15 +7,15 @@ export const Header = () => {
   const { toggleOrders } = useCartStore();
 
   return (
-    <header className="flex justify-between items-center mb-[30px] border-b pb-4">
-      <Link to="/" className="text-[2.5rem] font-bold no-underline text-Rose-900">Desserts</Link>
+    <header className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-[30px] border-b pb-4">
+      <Link to="/" className="text-[2.5rem] font-bold no-underline text-Rose-900 leading-none">Desserts</Link>
       
-      <div className="flex gap-4 items-center">
+      <div className="flex flex-wrap gap-3 items-center justify-center">
         {user ? (
           <>
             <span className="font-semibold text-Rose-900 text-sm">Hola, {user.name}</span>
             {user.role === 'admin' ? (
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2 justify-center">
                 <Link
                   to="/admin/pagos"
                   className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-full font-semibold text-sm transition-colors"

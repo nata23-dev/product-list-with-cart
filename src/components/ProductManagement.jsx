@@ -225,53 +225,91 @@ export const ProductManagement = () => {
         ) : products.length === 0 ? (
           <div className="text-center py-20 text-gray-500 text-lg">No hay productos registrados en el catálogo.</div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="bg-rose-100 text-gray-700 text-sm uppercase tracking-wider">
-                    <th className="px-6 py-3 font-semibold w-16">ID</th>
-                    <th className="px-6 py-3 font-semibold w-24">Imagen</th>
-                    <th className="px-6 py-3 font-semibold">Nombre</th>
-                    <th className="px-6 py-3 font-semibold">Categoría</th>
-                    <th className="px-6 py-3 font-semibold w-28">Precio</th>
-                    <th className="px-6 py-3 font-semibold w-40 text-right">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {products.map(product => (
-                    <tr key={product.id} className="hover:bg-rose-50/50 transition-colors">
-                      <td className="px-6 py-4 font-mono text-sm text-gray-500">#{product.id}</td>
-                      <td className="px-6 py-4">
-                        <img
-                          src={product.image_thumbnail || '/assets/images/image-waffle-thumbnail.jpg'}
-                          alt={product.name}
-                          className="size-12 rounded-lg object-cover border border-rose-200"
-                        />
-                      </td>
-                      <td className="px-6 py-4 font-medium text-gray-800">{product.name}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{product.category}</td>
-                      <td className="px-6 py-4 font-semibold text-gray-800">
-                        ${(product.price || 0).toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 text-right space-x-2">
-                        <button
-                          onClick={() => handleOpenEdit(product)}
-                          className="text-indigo-600 hover:text-indigo-800 text-sm font-semibold underline cursor-pointer"
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => handleDelete(product.id, product.name)}
-                          className="text-red-500 hover:text-red-700 text-sm font-semibold underline cursor-pointer"
-                        >
-                          Eliminar
-                        </button>
-                      </td>
+          <div>
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-white rounded-2xl shadow-md overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-rose-100 text-gray-700 text-sm uppercase tracking-wider">
+                      <th className="px-6 py-3 font-semibold w-16">ID</th>
+                      <th className="px-6 py-3 font-semibold w-24">Imagen</th>
+                      <th className="px-6 py-3 font-semibold">Nombre</th>
+                      <th className="px-6 py-3 font-semibold">Categoría</th>
+                      <th className="px-6 py-3 font-semibold w-28">Precio</th>
+                      <th className="px-6 py-3 font-semibold w-40 text-right">Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {products.map(product => (
+                      <tr key={product.id} className="hover:bg-rose-50/50 transition-colors">
+                        <td className="px-6 py-4 font-mono text-sm text-gray-500">#{product.id}</td>
+                        <td className="px-6 py-4">
+                          <img
+                            src={product.image_thumbnail || '/assets/images/image-waffle-thumbnail.jpg'}
+                            alt={product.name}
+                            className="size-12 rounded-lg object-cover border border-rose-200"
+                          />
+                        </td>
+                        <td className="px-6 py-4 font-medium text-gray-800">{product.name}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{product.category}</td>
+                        <td className="px-6 py-4 font-semibold text-gray-800">
+                          ${(product.price || 0).toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 text-right space-x-2">
+                          <button
+                            onClick={() => handleOpenEdit(product)}
+                            className="text-indigo-600 hover:text-indigo-800 text-sm font-semibold underline cursor-pointer"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleDelete(product.id, product.name)}
+                            className="text-red-500 hover:text-red-700 text-sm font-semibold underline cursor-pointer"
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Mobile Card List View */}
+            <div className="block md:hidden space-y-4">
+              {products.map(product => (
+                <div key={product.id} className="bg-white p-4 rounded-2xl shadow-sm border border-rose-100 flex gap-4 items-center">
+                  <img
+                    src={product.image_thumbnail || '/assets/images/image-waffle-thumbnail.jpg'}
+                    alt={product.name}
+                    className="size-16 rounded-lg object-cover border border-rose-200 shrink-0"
+                  />
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex justify-between items-start">
+                      <h3 className="font-bold text-gray-800 truncate text-sm pr-2">{product.name}</h3>
+                      <span className="font-mono text-xs text-gray-400 shrink-0">#{product.id}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">{product.category}</p>
+                    <p className="font-bold text-red-500 text-sm">${(product.price || 0).toFixed(2)}</p>
+                    <div className="flex gap-4 pt-1 border-t border-gray-50 mt-1">
+                      <button
+                        onClick={() => handleOpenEdit(product)}
+                        className="text-indigo-600 hover:text-indigo-800 text-xs font-semibold underline cursor-pointer"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id, product.name)}
+                        className="text-red-500 hover:text-red-700 text-xs font-semibold underline cursor-pointer"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -307,7 +345,7 @@ export const ProductManagement = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Categoría *</label>
                   <select

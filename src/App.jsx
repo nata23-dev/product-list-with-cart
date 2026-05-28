@@ -26,8 +26,10 @@ function HomePage() {
       <section className='my-6 w-full max-w-[1200px] px-4'>
         <Header />
 
-        <div className='desktop:flex desktop:gap-8 desktop:items-start'>
-          <CardsContainer />
+        <div className='flex flex-col lg:flex-row gap-8 items-start'>
+          <div className='flex-1 w-full'>
+            <CardsContainer />
+          </div>
           <Cart />
         </div>
       </section>

@@ -9,7 +9,7 @@ export const Cart = () => {
   const totalQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <div className='bg-Rose-50 p-6 rounded-xl min-w-[320px]'>
+    <div className='bg-Rose-50 p-6 rounded-xl w-full lg:w-[380px] lg:shrink-0'>
       <h2 className='text-Red font-bold text-2xl mb-6'>Your Cart ({totalQuantity})</h2>
       {cart.length === 0 ? (
         <div className="flex flex-col items-center py-10">

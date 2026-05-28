@@ -184,82 +184,147 @@ export const PaymentManagement = () => {
         ) : orders.length === 0 ? (
           <div className="text-center py-20 text-gray-500 text-lg">No hay pedidos registrados.</div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="bg-rose-100 text-gray-700 text-sm uppercase tracking-wider">
-                    <th className="px-4 py-3 font-semibold">ID</th>
-                    <th className="px-4 py-3 font-semibold">Cliente</th>
-                    <th className="px-4 py-3 font-semibold">Email</th>
-                    <th className="px-4 py-3 font-semibold">Total</th>
-                    <th className="px-4 py-3 font-semibold">Método de Pago</th>
-                    <th className="px-4 py-3 font-semibold">Estado Pago</th>
-                    <th className="px-4 py-3 font-semibold">Estado Pedido</th>
-                    <th className="px-4 py-3 font-semibold">Fecha</th>
-                    <th className="px-4 py-3 font-semibold">Gestión</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {orders.map(order => (
-                    <tr key={order.id} className="hover:bg-rose-50/50 transition-colors">
-                      <td className="px-4 py-3 font-mono text-sm text-gray-500">#{order.id}</td>
-                      <td className="px-4 py-3 font-medium text-gray-800">{order.user_name}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500">{order.user_email}</td>
-                      <td className="px-4 py-3 font-semibold text-gray-800">
-                        ${(order.total_price || 0).toFixed(2)}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600 capitalize">
-                        {order.payment_method || '—'}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[order.payment_status] || 'bg-gray-100 text-gray-800'}`}>
-                          {STATUS_LABELS[order.payment_status] || order.payment_status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${ORDER_STATUS_COLORS[order.order_status] || 'bg-gray-100 text-gray-800'}`}>
-                          {ORDER_STATUS_LABELS[order.order_status] || order.order_status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-500">{formatDate(order.created_at)}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-500 w-16">Pago:</span>
-                            <select
-                              value={order.payment_status}
-                              onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                              disabled={updatingId === order.id}
-                              className="border border-gray-300 rounded-lg px-2 py-1 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 disabled:opacity-50"
-                            >
-                              {STATUS_OPTIONS.map(s => (
-                                <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-500 w-16">Pedido:</span>
-                            <select
-                              value={order.order_status}
-                              onChange={(e) => handleOrderStatusChange(order.id, e.target.value)}
-                              disabled={updatingId === order.id}
-                              className="border border-gray-300 rounded-lg px-2 py-1 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 disabled:opacity-50"
-                            >
-                              {ORDER_STATUS_OPTIONS.map(s => (
-                                <option key={s} value={s}>{ORDER_STATUS_LABELS[s]}</option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                        {updatingId === order.id && (
-                          <span className="text-xs text-gray-400 block mt-1">Actualizando...</span>
-                        )}
-                      </td>
+          <div>
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-white rounded-2xl shadow-md overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-rose-100 text-gray-700 text-sm uppercase tracking-wider">
+                      <th className="px-4 py-3 font-semibold">ID</th>
+                      <th className="px-4 py-3 font-semibold">Cliente</th>
+                      <th className="px-4 py-3 font-semibold">Email</th>
+                      <th className="px-4 py-3 font-semibold">Total</th>
+                      <th className="px-4 py-3 font-semibold">Método de Pago</th>
+                      <th className="px-4 py-3 font-semibold">Estado Pago</th>
+                      <th className="px-4 py-3 font-semibold">Estado Pedido</th>
+                      <th className="px-4 py-3 font-semibold">Fecha</th>
+                      <th className="px-4 py-3 font-semibold">Gestión</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {orders.map(order => (
+                      <tr key={order.id} className="hover:bg-rose-50/50 transition-colors">
+                        <td className="px-4 py-3 font-mono text-sm text-gray-500">#{order.id}</td>
+                        <td className="px-4 py-3 font-medium text-gray-800">{order.user_name}</td>
+                        <td className="px-4 py-3 text-sm text-gray-500">{order.user_email}</td>
+                        <td className="px-4 py-3 font-semibold text-gray-800">
+                          ${(order.total_price || 0).toFixed(2)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 capitalize">
+                          {order.payment_method || '—'}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[order.payment_status] || 'bg-gray-100 text-gray-800'}`}>
+                            {STATUS_LABELS[order.payment_status] || order.payment_status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${ORDER_STATUS_COLORS[order.order_status] || 'bg-gray-100 text-gray-800'}`}>
+                            {ORDER_STATUS_LABELS[order.order_status] || order.order_status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-500">{formatDate(order.created_at)}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500 w-16">Pago:</span>
+                              <select
+                                value={order.payment_status}
+                                onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                                disabled={updatingId === order.id}
+                                className="border border-gray-300 rounded-lg px-2 py-1 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 disabled:opacity-50"
+                              >
+                                {STATUS_OPTIONS.map(s => (
+                                  <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-500 w-16">Pedido:</span>
+                              <select
+                                value={order.order_status}
+                                onChange={(e) => handleOrderStatusChange(order.id, e.target.value)}
+                                disabled={updatingId === order.id}
+                                className="border border-gray-300 rounded-lg px-2 py-1 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 disabled:opacity-50"
+                              >
+                                {ORDER_STATUS_OPTIONS.map(s => (
+                                  <option key={s} value={s}>{ORDER_STATUS_LABELS[s]}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                          {updatingId === order.id && (
+                            <span className="text-xs text-gray-400 block mt-1">Actualizando...</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Mobile Card List View */}
+            <div className="block md:hidden space-y-4">
+              {orders.map(order => (
+                <div key={order.id} className="bg-white p-5 rounded-2xl shadow-sm border border-rose-100 space-y-3">
+                  <div className="flex justify-between items-center pb-2 border-b border-gray-100">
+                    <span className="font-mono text-sm font-bold text-gray-800">#{order.id}</span>
+                    <span className="text-xs text-gray-500">{formatDate(order.created_at)}</span>
+                  </div>
+                  
+                  <div className="space-y-1.5 text-sm text-gray-700">
+                    <p><strong className="text-gray-500 font-semibold">Cliente:</strong> {order.user_name}</p>
+                    <p><strong className="text-gray-500 font-semibold">Email:</strong> <span className="break-all">{order.user_email}</span></p>
+                    <p><strong className="text-gray-500 font-semibold">Total:</strong> <span className="font-bold text-gray-900">${(order.total_price || 0).toFixed(2)}</span></p>
+                    <p className="capitalize"><strong className="text-gray-500 font-semibold">Método de Pago:</strong> {order.payment_method || '—'}</p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 py-1">
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${STATUS_COLORS[order.payment_status] || 'bg-gray-100 text-gray-800'}`}>
+                      Pago: {STATUS_LABELS[order.payment_status] || order.payment_status}
+                    </span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${ORDER_STATUS_COLORS[order.order_status] || 'bg-gray-100 text-gray-800'}`}>
+                      Pedido: {ORDER_STATUS_LABELS[order.order_status] || order.order_status}
+                    </span>
+                  </div>
+
+                  <div className="bg-rose-50/50 p-3 rounded-xl border border-rose-100/50 space-y-2.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-500 font-semibold">Editar Pago:</span>
+                      <select
+                        value={order.payment_status}
+                        onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                        disabled={updatingId === order.id}
+                        className="border border-gray-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 disabled:opacity-50"
+                      >
+                        {STATUS_OPTIONS.map(s => (
+                          <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-500 font-semibold">Editar Pedido:</span>
+                      <select
+                        value={order.order_status}
+                        onChange={(e) => handleOrderStatusChange(order.id, e.target.value)}
+                        disabled={updatingId === order.id}
+                        className="border border-gray-300 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-red-400 disabled:opacity-50"
+                      >
+                        {ORDER_STATUS_OPTIONS.map(s => (
+                          <option key={s} value={s}>{ORDER_STATUS_LABELS[s]}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  
+                  {updatingId === order.id && (
+                    <span className="text-xs text-gray-400 block text-center animate-pulse">Actualizando...</span>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}
