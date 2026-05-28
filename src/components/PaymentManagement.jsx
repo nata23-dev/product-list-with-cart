@@ -40,14 +40,21 @@ const ORDER_STATUS_COLORS = {
 };
 
 export const PaymentManagement = () => {
+  // --- CONTROL DE AUTENTICACIÓN Y REGRESO ---
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+
+  // --- ESTADO DE PEDIDOS Y CARGAS ---
+  // orders: Listado completo de pedidos y compras de los clientes
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // feedback: Notificación emergente sobre el resultado del cambio de estados
   const [feedback, setFeedback] = useState(null);
+  // updatingId: ID del pedido que se está modificando en este momento (usado para deshabilitar selectores en vuelo)
   const [updatingId, setUpdatingId] = useState(null);
 
+  // --- OBTENER TODOS LOS PEDIDOS DESDE EL BACKEND ---
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -55,6 +62,8 @@ export const PaymentManagement = () => {
       const data = await adminService.getOrders();
       setOrders(data);
     } catch (err) {
+      // Manejo preventivo del token expirado: Si la API informa problemas con el JWT o acceso,
+      // borramos la sesión local en Zustand/localStorage y redirigimos al usuario a la tienda principal.
       if (err.message.includes('Token') || err.message.includes('acceso')) {
         logout();
         navigate('/');
@@ -66,40 +75,50 @@ export const PaymentManagement = () => {
     }
   }, [logout, navigate]);
 
+  // Carga inicial al renderizar la vista
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
+  // --- ACTUALIZAR EL ESTADO DEL PAGO ---
   const handleStatusChange = async (orderId, newStatus) => {
     setUpdatingId(orderId);
     setFeedback(null);
     try {
       const updated = await adminService.updatePaymentStatus(orderId, newStatus);
+      // Muta reactivamente la orden en el estado local. Si la cancelación automática se disparó,
+      // actualizamos tanto el estado de pago como el estado de la entrega.
       setOrders(prev => prev.map(o => (o.id === orderId ? { ...o, payment_status: updated.payment_status, order_status: updated.order_status } : o)));
       setFeedback({ type: 'success', message: `Estado de pago actualizado a "${STATUS_LABELS[newStatus]}"` });
     } catch (err) {
       setFeedback({ type: 'error', message: err.message });
     } finally {
       setUpdatingId(null);
+      // Desvanece el banner de confirmación después de 4 segundos
       setTimeout(() => setFeedback(null), 4000);
     }
   };
 
+  // --- ACTUALIZAR EL ESTADO LOGÍSTICO DEL PEDIDO ---
   const handleOrderStatusChange = async (orderId, newStatus) => {
     setUpdatingId(orderId);
     setFeedback(null);
     try {
       const updated = await adminService.updateOrderStatus(orderId, newStatus);
+      // Actualiza el estado logístico de la entrega de forma reactiva
       setOrders(prev => prev.map(o => (o.id === orderId ? { ...o, order_status: updated.order_status } : o)));
       setFeedback({ type: 'success', message: `Estado de entrega actualizado a "${ORDER_STATUS_LABELS[newStatus]}"` });
     } catch (err) {
       setFeedback({ type: 'error', message: err.message });
     } finally {
       setUpdatingId(null);
+      // Desvanece la notificación de feedback
       setTimeout(() => setFeedback(null), 4000);
     }
   };
 
+  // --- GUARDA DE AUTORIZACIÓN ---
+  // Impide el acceso al renderizado del panel si no es un usuario tipo admin
   if (!user || user.role !== 'admin') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-rose-50">

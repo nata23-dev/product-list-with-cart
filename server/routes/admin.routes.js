@@ -1,11 +1,14 @@
 import { Router } from 'express';
 import { validationResult } from 'express-validator';
+// authenticate: Valida la existencia y firma del JWT Bearer Token
+// requireAdmin: Consulta la BD para verificar si el usuario tiene rol 'admin'
 import { authenticate, requireAdmin } from '../middleware/auth.middleware.js';
 import { getAllOrders, updatePaymentStatus, updateOrderStatus } from '../controllers/admin.controller.js';
 import { paymentStatusValidation } from '../validators/order.validator.js';
 
 const router = Router();
 
+// Middleware local para capturar y procesar errores de validación de express-validator
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -14,6 +17,8 @@ const handleValidationErrors = (req, res, next) => {
   next();
 };
 
+// APLICA DE MANERA GLOBAL A ESTAS RUTAS:
+// Toda llamada a las rutas definidas abajo debe estar autenticada y autorizada como Admin
 router.use(authenticate, requireAdmin);
 
 /**
@@ -84,6 +89,7 @@ router.use(authenticate, requireAdmin);
  *       403:
  *         description: Acceso denegado (no admin)
  */
+// Obtención de todos los pedidos (combina información de múltiples BD)
 router.get('/orders', getAllOrders);
 
 /**
@@ -123,6 +129,7 @@ router.get('/orders', getAllOrders);
  *       404:
  *         description: Pedido no encontrado
  */
+// Modifica el estado del pago. Valida que el estado sea correcto usando paymentStatusValidation.
 router.patch(
   '/orders/:orderId/payment-status',
   paymentStatusValidation,
@@ -130,6 +137,7 @@ router.patch(
   updatePaymentStatus,
 );
 
+// Modifica el estado logístico del pedido (Ej: preparando, entregado)
 router.patch(
   '/orders/:orderId/order-status',
   updateOrderStatus,

@@ -9,6 +9,8 @@ import authRoutes from './routes/auth.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import orderRoutes from './routes/orders.routes.js';
 import {syncDatabase} from './models/index.js';
+import path from 'path';
+import {fileURLToPath} from 'url';
 
 const app = express();
 const PORT = 3000;
@@ -47,6 +49,17 @@ app.get('/', (req, res) => {
         message: '🍰 Desserts API funcionando',
         docs: 'http://localhost:3000/api-docs',
     });
+});
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static assets from frontend
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Serve index.html for any other route (React router compatibility)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 // ── Iniciar ────────────────────────────────────────────────────────

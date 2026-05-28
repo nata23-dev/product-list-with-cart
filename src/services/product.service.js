@@ -1,5 +1,10 @@
-const API_URL = 'http://localhost:3000/api/products';
+// Endpoint base de la API de productos
+const API_URL = '/api/products';
 
+/**
+ * Retorna las cabeceras comunes con el token JWT si está presente en localStorage.
+ * Requerido para operaciones de escritura protegidas por rol de administrador.
+ */
 function getAuthHeaders() {
   const token = localStorage.getItem('token');
   const headers = { 'Content-Type': 'application/json' };
@@ -8,6 +13,9 @@ function getAuthHeaders() {
 }
 
 export const productService = {
+  /**
+   * Obtiene todos los productos del catálogo (ruta pública)
+   */
   async getProducts() {
     const res = await fetch(`${API_URL}`);
     const data = await res.json();
@@ -15,6 +23,9 @@ export const productService = {
     return data;
   },
 
+  /**
+   * Crea un nuevo postre en la base de datos (requiere token y rol admin)
+   */
   async createProduct(productData) {
     const res = await fetch(`${API_URL}`, {
       method: 'POST',
@@ -26,6 +37,9 @@ export const productService = {
     return data;
   },
 
+  /**
+   * Modifica un producto existente por su ID (requiere token y rol admin)
+   */
   async updateProduct(id, productData) {
     const res = await fetch(`${API_URL}/${id}`, {
       method: 'PUT',
@@ -37,6 +51,9 @@ export const productService = {
     return data;
   },
 
+  /**
+   * Elimina un producto por su ID (requiere token y rol admin)
+   */
   async deleteProduct(id) {
     const res = await fetch(`${API_URL}/${id}`, {
       method: 'DELETE',

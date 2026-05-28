@@ -21,7 +21,7 @@ export const OrdersHistory = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('http://localhost:3000/api/orders', {
+      const res = await fetch('/api/orders', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

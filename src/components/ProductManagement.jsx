@@ -5,18 +5,28 @@ import { productService } from '../services/product.service';
 import { useCartStore } from '../store/cart.store';
 
 export const ProductManagement = () => {
+  // --- STORE Y ROUTING ---
+  // user: Información del usuario en sesión (contiene el rol)
+  // logout: Función para destruir la sesión local en caso de error de token
   const { user, logout } = useAuthStore();
-  const { fetchProducts } = useCartStore(); // Para actualizar el catálogo general tras cambios
+  // fetchProducts: Actualiza la lista global en Zustand para sincronizar con la tienda principal
+  const { fetchProducts } = useCartStore(); 
   const navigate = useNavigate();
 
+  // --- ESTADO LOCAL DEL COMPONENTE ---
+  // products: Colección de postres registrados en la base de datos
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // feedback: Mensajes flotantes de confirmación o error de operaciones (éxito al crear/editar/eliminar)
   const [feedback, setFeedback] = useState(null);
 
-  // Form State
+  // --- ESTADO DEL FORMULARIO Y MODAL ---
+  // isModalOpen: Controla la visibilidad del modal de creación/edición
   const [isModalOpen, setIsModalOpen] = useState(false);
+  // editingId: Si contiene un ID numérico, estamos en modo Edición. Si es null, en modo Creación.
   const [editingId, setEditingId] = useState(null);
+  // formData: Datos temporales del formulario reactivo para la entidad del postre
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -27,6 +37,8 @@ export const ProductManagement = () => {
     image_desktop: '',
   });
 
+  // --- OBTENER PRODUCTOS DEL SERVIDOR ---
+  // Utiliza useCallback para evitar que la función se re-cree en cada renderizado y active el useEffect infinitamente
   const loadProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -40,12 +52,16 @@ export const ProductManagement = () => {
     }
   }, []);
 
+  // --- EFECTO DE CONTROL DE ACCESO Y CARGA INICIAL ---
+  // Carga los productos únicamente si el usuario autenticado tiene el rol de administrador
   useEffect(() => {
     if (user?.role === 'admin') {
       loadProducts();
     }
   }, [user, loadProducts]);
 
+  // --- CONTROLADORES DE APERTURA DE MODAL ---
+  // handleOpenAdd: Abre el modal vacío (o con valores por defecto tipo Waffle) para crear un nuevo postre
   const handleOpenAdd = () => {
     setEditingId(null);
     setFormData({
@@ -60,6 +76,7 @@ export const ProductManagement = () => {
     setIsModalOpen(true);
   };
 
+  // handleOpenEdit: Carga la fila seleccionada en el estado local para editarla
   const handleOpenEdit = (p) => {
     setEditingId(p.id);
     setFormData({
@@ -74,15 +91,18 @@ export const ProductManagement = () => {
     setIsModalOpen(true);
   };
 
+  // handleInputChange: Sincroniza las entradas de los inputs del formulario con el estado formData
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // --- ENVÍO DEL FORMULARIO (CREAR O ACTUALIZAR) ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFeedback(null);
 
+    // Validación de negocio del lado del cliente: El precio debe ser un número estrictamente positivo
     const priceNum = parseFloat(formData.price);
     if (isNaN(priceNum) || priceNum <= 0) {
       setFeedback({ type: 'error', message: 'El precio debe ser un número positivo' });
@@ -96,38 +116,45 @@ export const ProductManagement = () => {
 
     try {
       if (editingId) {
-        // Actualizar
+        // MODO EDICIÓN: Llama a la API de actualización y muta la lista local reactivamente usando .map()
         const updated = await productService.updateProduct(editingId, payload);
         setProducts(prev => prev.map(p => p.id === editingId ? updated : p));
         setFeedback({ type: 'success', message: 'Producto actualizado exitosamente' });
       } else {
-        // Crear
+        // MODO CREACIÓN: Llama a la API de creación e inserta el nuevo elemento al principio de la tabla
         const created = await productService.createProduct(payload);
         setProducts(prev => [created, ...prev]);
         setFeedback({ type: 'success', message: 'Producto creado exitosamente' });
       }
       setIsModalOpen(false);
-      fetchProducts(); // Refrescar catálogo principal en Zustand
+      // Sincroniza la lista global en Zustand para que los cambios se vean inmediatamente en la tienda
+      fetchProducts(); 
     } catch (err) {
       setFeedback({ type: 'error', message: err.message });
     }
   };
 
+  // --- ELIMINAR UN POSTRE ---
   const handleDelete = async (id, name) => {
+    // Confirmación nativa preventiva
     if (!window.confirm(`¿Estás seguro de que deseas eliminar el producto "${name}"?`)) {
       return;
     }
     setFeedback(null);
     try {
       await productService.deleteProduct(id);
+      // Remueve el elemento de la tabla local reactivamente
       setProducts(prev => prev.filter(p => p.id !== id));
       setFeedback({ type: 'success', message: 'Producto eliminado correctamente' });
-      fetchProducts(); // Refrescar catálogo principal
+      // Sincroniza los cambios con la vista pública
+      fetchProducts(); 
     } catch (err) {
       setFeedback({ type: 'error', message: err.message });
     }
   };
 
+  // --- GUARDA DE ACCESO (FRONTEND) ---
+  // Si no hay sesión o el usuario no es admin, bloquea la renderización e invita a regresar
   if (!user || user.role !== 'admin') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-rose-50">

@@ -1,5 +1,10 @@
-const API_URL = 'http://localhost:3000/api/admin';
+// Ruta raíz para las llamadas HTTP de administración
+const API_URL = '/api/admin';
 
+/**
+ * Helper para inyectar las cabeceras de autorización requeridas por el backend.
+ * Recupera el JWT de localStorage y lo formatea como cabecera Bearer.
+ */
 function getAuthHeaders() {
   const token = localStorage.getItem('token');
   const headers = { 'Content-Type': 'application/json' };
@@ -8,6 +13,9 @@ function getAuthHeaders() {
 }
 
 export const adminService = {
+  /**
+   * Obtiene todos los pedidos registrados en el sistema (requiere rol admin)
+   */
   async getOrders() {
     const res = await fetch(`${API_URL}/orders`, { headers: getAuthHeaders() });
     const data = await res.json();
@@ -15,6 +23,9 @@ export const adminService = {
     return data;
   },
 
+  /**
+   * Actualiza el estado de pago de una orden (pending, paid, cancelled, etc.)
+   */
   async updatePaymentStatus(orderId, paymentStatus) {
     const res = await fetch(`${API_URL}/orders/${orderId}/payment-status`, {
       method: 'PATCH',
@@ -26,6 +37,9 @@ export const adminService = {
     return data;
   },
 
+  /**
+   * Actualiza el estado de entrega o logística de una orden (preparing, delivered, etc.)
+   */
   async updateOrderStatus(orderId, orderStatus) {
     const res = await fetch(`${API_URL}/orders/${orderId}/order-status`, {
       method: 'PATCH',
